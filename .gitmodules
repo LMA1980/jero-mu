@@ -1,0 +1,4 @@
+[submodule "jero"]
+	path = jero
+	url = git@github.com:LMA1980/jero-mu-client.git
+	branch = main

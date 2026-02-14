@@ -1,0 +1,27 @@
+#!/bin/sh
+# pre-commit hook to run cargo commands
+
+echo "Running cargo fmt..."
+cargo fmt --all -- --check
+if [ $? -ne 0 ]; then
+    echo "cargo fmt failed. Commit aborted."
+    exit 1
+fi
+
+echo "Running cargo clippy..."
+cargo clippy --all-targets --all-features -- -D warnings
+if [ $? -ne 0 ]; then
+    echo "cargo clippy failed. Commit aborted."
+    exit 1
+fi
+
+echo "Running cargo audit..."
+cargo audit
+if [ $? -ne 0 ]; then
+    echo "cargo audit failed. Commit aborted."
+    exit 1
+fi
+
+echo "Pre-commit checks passed."
+exit 0
+

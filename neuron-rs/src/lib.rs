@@ -72,6 +72,12 @@ impl NeuronBuilder {
     }
 }
 
+// Simple internal helper for hashing
+fn rust_hash(_data: &str) -> [u8; 16] {
+    // In production, use Blake3 here
+    [0u8; 16] // Placeholder
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -110,10 +116,4 @@ mod tests {
         assert_eq!(neuron.version(), env!("CARGO_PKG_VERSION"));
         Ok(())
     }
-}
-
-// Simple internal helper for hashing
-fn rust_hash(_data: &str) -> [u8; 16] {
-    // In production, use Blake3 here
-    [0u8; 16] // Placeholder
 }

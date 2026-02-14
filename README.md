@@ -15,3 +15,17 @@
         - the package version
         - the binary name
 
+## neuron-rs
+
+A logical-node abstraction library for a distributed system.
+
+Implemented so far:
+- Neuron with an id, with a tracking uuid, and hard-coded version link to the library version
+  as define in the Cargo.toml file.
+- A NeuronBuilder to simplify the instanciation of the Neuron object.
+
+Provide a series of:
+- Unittest(s)
+- Implementation Test(s)
+- Benchmark(s)
+- Example(s)

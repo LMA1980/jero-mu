@@ -9,17 +9,20 @@ fn test_minimal_neuron_initialization() {
     let builder = NeuronBuilder::new();
 
     // 2. Act
-    // We want our builder to return a Result to handle the "Zero-Trust" 
+    // We want our builder to return a Result to handle the "Zero-Trust"
     // validation errors we'll add later, rather than just panicking.
     let neuron_result = builder
         .with_id(expected_id)
-        .with_tracking_uuid_v8(1,"Default Tracking")
+        .with_tracking_uuid_v8(1, "Default Tracking")
         .build();
-        //.expect("Runtime Error");
+    //.expect("Runtime Error");
 
     // 3. Assert
-    assert!(neuron_result.is_ok(), "Neuron should build successfully with a valid ID");
-    
+    assert!(
+        neuron_result.is_ok(),
+        "Neuron should build successfully with a valid ID"
+    );
+
     let neuron: Neuron = neuron_result.unwrap();
     assert_eq!(neuron.id(), expected_id);
 }
@@ -29,7 +32,7 @@ fn test_neuron_id_is_shared_and_immutable() {
     let expected_id = "neuron-01";
     let neuron = NeuronBuilder::new()
         .with_id(expected_id)
-        .with_tracking_uuid_v8(1,"Default Tracking")
+        .with_tracking_uuid_v8(1, "Default Tracking")
         .build()
         .expect("Build failed");
 
@@ -42,8 +45,8 @@ fn test_neuron_uuid_v8_integration() {
     let epoch_1: u64 = 1024;
     let epoch_2: u64 = 1025;
     let config_data = "some_secure_config_payload";
-    
-    // In our implementation, the builder will handle 
+
+    // In our implementation, the builder will handle
     // packing the epoch and hash into the UUID v8
     let neuron = NeuronBuilder::new()
         .with_id("uuid-neuron")
@@ -52,17 +55,16 @@ fn test_neuron_uuid_v8_integration() {
         .expect("Build failed");
 
     let tracking = neuron.tracking();
-    
+
     // Verify it is a valid UUID
     assert_eq!(tracking.get_version_num(), 8);
-    
+
     // Verify sorting (Epoch 1025 should be > 1024)
     let newer_neuron = NeuronBuilder::new()
         .with_id("uuid-neuron")
         .with_tracking_uuid_v8(epoch_2, config_data)
         .build()
         .unwrap();
-        
+
     assert!(newer_neuron.tracking() > neuron.tracking());
 }
-

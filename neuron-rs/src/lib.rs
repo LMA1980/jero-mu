@@ -21,15 +21,25 @@ impl Neuron {
     }
 }
 
+#[derive(Debug)]
 pub struct NeuronBuilder {
     id: Option<Arc<str>>,
     tracking: Option<Arc<uuid::Uuid>>,
 }
 
+impl Default for NeuronBuilder {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl NeuronBuilder {
     // Initialize the builder with "None" values
     pub fn new() -> Self {
-        Self { id: None, tracking: None }
+        Self {
+            id: None,
+            tracking: None,
+        }
     }
 
     pub fn with_id(mut self, id: &str) -> Self {
@@ -39,14 +49,14 @@ impl NeuronBuilder {
 
     pub fn with_tracking_uuid_v8(mut self, epoch: u64, data: &str) -> Self {
         let mut buf = [0u8; 16];
-        
+
         // 1. Pack Epoch (Big Endian, first 6 bytes / 48 bits)
         let epoch_bytes = epoch.to_be_bytes();
         buf[0..6].copy_from_slice(&epoch_bytes[2..8]);
 
         // 2. Hash the data (truncated to remaining 10 bytes)
         // Using a simple hash for this 'baby step'
-        let hash = rust_hash(data); 
+        let hash = rust_hash(data);
         buf[6..16].copy_from_slice(&hash[0..10]);
 
         // 3. Set UUID version to 8
@@ -57,7 +67,7 @@ impl NeuronBuilder {
     pub fn build(self) -> Result<Neuron, String> {
         let id = self.id.ok_or("Identity required")?;
         let tracking = self.tracking.ok_or("V8 Bootstrap required")?;
-        
+
         Ok(Neuron { id, tracking })
     }
 }
@@ -67,9 +77,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn should_build_a_neuron_with_identity() -> 
-        Result<(), String>
-    {
+    fn should_build_a_neuron_with_identity() -> Result<(), String> {
         // 1. Arrange: Define what we want
         let expected_id = "neuron-01";
         let builder: NeuronBuilder = NeuronBuilder::new();
@@ -78,8 +86,9 @@ mod tests {
         // We want a fluent API that allows setting identity
         let neuron = builder
             .with_id(expected_id)
-            .with_tracking_uuid_v8(1,"Default Tracking")
-            .build().expect("Runtime error");
+            .with_tracking_uuid_v8(1, "Default Tracking")
+            .build()
+            .expect("Runtime error");
 
         // 3. Assert: Verify the result
         assert_eq!(neuron.id(), expected_id);
@@ -89,12 +98,10 @@ mod tests {
     // tests/minimal_neuron_test.rs
 
     #[test]
-    fn test_neuron_defaults_to_crate_version() -> 
-        Result<(), String> 
-    {
+    fn test_neuron_defaults_to_crate_version() -> Result<(), String> {
         let neuron = NeuronBuilder::new()
             .with_id("version-test")
-            .with_tracking_uuid_v8(1,"Default Tracking")
+            .with_tracking_uuid_v8(1, "Default Tracking")
             .build()
             .expect("Build failed");
 

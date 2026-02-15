@@ -1,3 +1,4 @@
+use sha2::{Digest, Sha512};
 use std::sync::Arc;
 use uuid::Uuid;
 
@@ -49,17 +50,25 @@ impl NeuronBuilder {
 
     pub fn with_tracking_uuid_v8(mut self, epoch: u64, data: &str) -> Self {
         let mut buf = [0u8; 16];
-
-        // 1. Pack Epoch (Big Endian, first 6 bytes / 48 bits)
+        
+        // 1. Pack 48-bit Epoch (Bytes 0-5)
         let epoch_bytes = epoch.to_be_bytes();
         buf[0..6].copy_from_slice(&epoch_bytes[2..8]);
 
-        // 2. Hash the data (truncated to remaining 10 bytes)
-        // Using a simple hash for this 'baby step'
-        let hash = rust_hash(data);
+        // 2. Generate SHA-512 for high-entropy source
+        let mut hasher = Sha512::new();
+        hasher.update(data.as_bytes());
+        let hash = hasher.finalize();
+
+        // 3. Extract the remaining bytes (Bytes 6-15)
+        // We fill the remaining 10 bytes with the start of the hash.
+        // The Uuid::new_v8 call later will mask out the 6 bits
+        // required for the Version (4) and Variant (2).
         buf[6..16].copy_from_slice(&hash[0..10]);
 
-        // 3. Set UUID version to 8
+        // 4. Finalize the UUIDv8
+        // This ensures the 128-bit number is a valid UUID while
+        // preserving as much of our 74-bit hash as possible.
         self.tracking = Some(Uuid::new_v8(buf).into());
         self
     }
@@ -70,12 +79,6 @@ impl NeuronBuilder {
 
         Ok(Neuron { id, tracking })
     }
-}
-
-// Simple internal helper for hashing
-fn rust_hash(_data: &str) -> [u8; 16] {
-    // In production, use Blake3 here
-    [0u8; 16] // Placeholder
 }
 
 #[cfg(test)]
@@ -100,8 +103,6 @@ mod tests {
         assert_eq!(neuron.id(), expected_id);
         Ok(())
     }
-
-    // tests/minimal_neuron_test.rs
 
     #[test]
     fn test_neuron_defaults_to_crate_version() -> Result<(), String> {

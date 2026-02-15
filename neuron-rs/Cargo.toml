@@ -6,6 +6,7 @@ authors.workspace = true
 description.workspace = true
 
 [dependencies]
+sha2 = { version = "0.10.9", features = ["std", "sha2-asm", "asm", "oid"] }
 uuid = { version = "1.21.0", features = ["sha1", "std", "v8", "zerocopy"] }
 
 [dev-dependencies]

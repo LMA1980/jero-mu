@@ -50,7 +50,7 @@ impl NeuronBuilder {
 
     pub fn with_tracking_uuid_v8(mut self, epoch: u64, data: &str) -> Self {
         let mut buf = [0u8; 16];
-        
+
         // 1. Pack 48-bit Epoch (Bytes 0-5)
         let epoch_bytes = epoch.to_be_bytes();
         buf[0..6].copy_from_slice(&epoch_bytes[2..8]);

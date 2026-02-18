@@ -1,6 +1,6 @@
 # [PROJECT_DIR]/Cargo.toml
 [workspace]
-members = ["neuron-rs","jero"]
+members = ["neuron-rs","jero", "ymd-viewer"]
 resolver = "3"
 
 [workspace.package]

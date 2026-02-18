@@ -30,4 +30,4 @@ Provide a series of:
 - Benchmark(s)
 - Example(s)
 
-For more details see [the road map](RoadMap.md)
+For more details see [the roadmap](RoadMap.md)

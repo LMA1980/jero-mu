@@ -1,5 +1,5 @@
 // tests/minimal_neuron_test.rs
-use neuron_rs::{Neuron, NeuronBuilder};
+use neuron::{Neuron, NeuronBuilder};
 // use uuid::Uuid;
 
 #[test]

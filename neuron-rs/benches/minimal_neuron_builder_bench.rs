@@ -1,5 +1,6 @@
-use criterion::{Criterion, black_box, criterion_group, criterion_main};
-use neuron_rs::NeuronBuilder;
+use criterion::{Criterion, criterion_group, criterion_main};
+use neuron::NeuronBuilder;
+use std::hint::black_box;
 
 fn benchmark_builder(c: &mut Criterion) {
     c.bench_function("build_neuron_minimal", |b| {

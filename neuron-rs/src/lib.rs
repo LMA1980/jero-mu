@@ -2,21 +2,29 @@ use sha2::{Digest, Sha512};
 use std::sync::Arc;
 use uuid::Uuid;
 
+#[derive(Debug, Clone, Default)]
+pub struct Config {
+    // Example configuration field
+    pub active: bool,
+}
+
 #[derive(Debug)]
 pub struct Neuron {
     id: Arc<str>,
     tracking: Arc<uuid::Uuid>,
+    config: Config,
 }
 
 impl Neuron {
     pub fn id(&self) -> &str {
         &self.id
     }
-
     pub fn tracking(&self) -> &Uuid {
         &self.tracking
     }
-
+    pub fn config(&self) -> &Config {
+        &self.config
+    }
     pub fn version(&self) -> &str {
         env!("CARGO_PKG_VERSION")
     }
@@ -26,6 +34,7 @@ impl Neuron {
 pub struct NeuronBuilder {
     id: Option<Arc<str>>,
     tracking: Option<Arc<uuid::Uuid>>,
+    config: Option<Config>,
 }
 
 impl Default for NeuronBuilder {
@@ -40,14 +49,13 @@ impl NeuronBuilder {
         Self {
             id: None,
             tracking: None,
+            config: None,
         }
     }
-
     pub fn with_id(mut self, id: &str) -> Self {
         self.id = Some(id.into());
         self
     }
-
     pub fn with_tracking_uuid_v8(mut self, epoch: u64, data: &str) -> Self {
         let mut buf = [0u8; 16];
 
@@ -72,12 +80,20 @@ impl NeuronBuilder {
         self.tracking = Some(Uuid::new_v8(buf).into());
         self
     }
-
+    pub fn with_config(mut self, config: Config) -> Self {
+        self.config = Some(config);
+        self
+    }
     pub fn build(self) -> Result<Neuron, String> {
         let id = self.id.ok_or("Identity required")?;
         let tracking = self.tracking.ok_or("V8 Bootstrap required")?;
+        let config = self.config.unwrap_or_default();
 
-        Ok(Neuron { id, tracking })
+        Ok(Neuron {
+            id,
+            tracking,
+            config,
+        })
     }
 }
 
@@ -115,6 +131,20 @@ mod tests {
         // We expect the version string from Cargo.toml
         // e.g., "0.1.0"
         assert_eq!(neuron.version(), env!("CARGO_PKG_VERSION"));
+        Ok(())
+    }
+
+    #[test]
+    fn should_build_with_config() -> Result<(), String> {
+        let config = Config { active: true };
+        let neuron = NeuronBuilder::new()
+            .with_id("config-test")
+            .with_tracking_uuid_v8(1, "Config Tracking")
+            .with_config(config.clone())
+            .build()
+            .expect("Build failed");
+
+        assert!(neuron.config().active);
         Ok(())
     }
 }

@@ -1,4 +1,4 @@
-use neuron_rs::{Neuron, NeuronBuilder};
+use neuron::{Neuron, NeuronBuilder};
 
 fn main() {
     let builder: NeuronBuilder = NeuronBuilder::new();
